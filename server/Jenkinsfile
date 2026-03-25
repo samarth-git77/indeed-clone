@@ -32,16 +32,18 @@ pipeline {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
                     dir('server') {
                         bat '''
-                        aws s3 cp app.zip s3://indeed-backend-bucket/app.zip
+                        aws s3 cp app.zip s3://indeed-backend-bucket/app.zip --region ap-south-1
 
                         aws elasticbeanstalk create-application-version ^
-                          --application-name indeed-backend ^
-                          --version-label v1 ^
-                          --source-bundle S3Bucket="indeed-backend-bucket",S3Key="app.zip"
+                        --application-name indeed-backend ^
+                        --version-label v1 ^
+                        --source-bundle S3Bucket="indeed-backend-bucket",S3Key="app.zip" ^
+                        --region ap-south-1
 
                         aws elasticbeanstalk update-environment ^
-                          --environment-name indeed-env ^
-                          --version-label v1
+                        --environment-name indeed-env ^
+                        --version-label v1 ^
+                        --region ap-south-1
                         '''
                     }
                 }
