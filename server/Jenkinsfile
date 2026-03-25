@@ -7,16 +7,11 @@ pipeline {
 
     stages {
 
-        stage('Clone') {
-            steps {
-                echo 'Cloning repo...'
-            }
-        }
-
         stage('Build') {
             steps {
+                echo 'Starting build...'
                 dir('server') {
-                    sh 'mvn clean package'
+                    bat 'mvn clean package'
                 }
             }
         }
