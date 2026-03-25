@@ -15,10 +15,14 @@ pipeline {
             }
         }
 
+        
         stage('Zip') {
             steps {
                 dir('server') {
-                    bat 'powershell Compress-Archive -Path * -DestinationPath app.zip'
+                    bat '''
+                    if exist app.zip del app.zip
+                    powershell Compress-Archive -Path * -DestinationPath app.zip
+                    '''
                 }
             }
         }
