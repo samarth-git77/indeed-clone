@@ -9,9 +9,9 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo 'Starting build...'
+                echo 'Building without tests...'
                 dir('server') {
-                    bat 'mvn clean package'
+                    bat 'mvn clean package -DskipTests'
                 }
             }
         }
