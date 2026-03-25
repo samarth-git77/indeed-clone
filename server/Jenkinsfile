@@ -16,33 +16,33 @@ pipeline {
         }
 
         
-        stage('Zip') {
+        stage('Prepare Artifact') {
             steps {
                 dir('server') {
                     bat '''
-                    if exist app.zip del app.zip
-                    powershell Compress-Archive -Path * -DestinationPath app.zip
+                    if exist deploy.zip del deploy.zip
+                    powershell Compress-Archive -Path target\\server.jar,Procfile -DestinationPath deploy.zip
                     '''
                 }
             }
         }
 
-        stage('Deploy to AWS') {
+       stage('Deploy to AWS') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
                     dir('server') {
                         bat '''
-                        aws s3 cp app.zip s3://indeed-backend-bucket/app.zip --region ap-south-1
+                        aws s3 cp deploy.zip s3://indeed-backend-bucket/deploy.zip --region ap-south-1
 
                         aws elasticbeanstalk create-application-version ^
                         --application-name indeed-backend ^
-                        --version-label v1 ^
-                        --source-bundle S3Bucket="indeed-backend-bucket",S3Key="app.zip" ^
+                        --version-label v2 ^
+                        --source-bundle S3Bucket="indeed-backend-bucket",S3Key="deploy.zip" ^
                         --region ap-south-1
 
                         aws elasticbeanstalk update-environment ^
                         --environment-name indeed-env ^
-                        --version-label v1 ^
+                        --version-label v2 ^
                         --region ap-south-1
                         '''
                     }
