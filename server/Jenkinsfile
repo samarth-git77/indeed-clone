@@ -9,9 +9,37 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo 'Building without tests...'
                 dir('server') {
                     bat 'mvn clean package -DskipTests'
+                }
+            }
+        }
+
+        stage('Zip') {
+            steps {
+                dir('server') {
+                    bat 'powershell Compress-Archive -Path * -DestinationPath app.zip'
+                }
+            }
+        }
+
+        stage('Deploy to AWS') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+                    dir('server') {
+                        bat '''
+                        aws s3 cp app.zip s3://indeed-backend-bucket/app.zip
+
+                        aws elasticbeanstalk create-application-version ^
+                          --application-name indeed-backend ^
+                          --version-label v1 ^
+                          --source-bundle S3Bucket="indeed-backend-bucket",S3Key="app.zip"
+
+                        aws elasticbeanstalk update-environment ^
+                          --environment-name indeed-env ^
+                          --version-label v1
+                        '''
+                    }
                 }
             }
         }
