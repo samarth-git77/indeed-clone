@@ -31,6 +31,33 @@ pipeline {
         }
 
 
+        stage('Debug Files') {
+            steps {
+                dir('server') {
+                    bat '''
+                    echo ===== CURRENT DIRECTORY =====
+                    cd
+
+                    echo ===== LIST ROOT FILES =====
+                    dir
+
+                    echo ===== TARGET FOLDER =====
+                    dir target
+
+                    echo ===== ZIP CONTENT =====
+                    powershell Expand-Archive -Path deploy.zip -DestinationPath temp_check -Force
+                    dir temp_check
+
+                    echo ===== FILE SIZE =====
+                    dir server.jar
+                    '''
+                }
+            }
+        }
+
+
+
+
         stage('Deploy to AWS') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
