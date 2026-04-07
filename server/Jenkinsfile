@@ -21,11 +21,15 @@ pipeline {
                 dir('server') {
                     bat '''
                     if exist deploy.zip del deploy.zip
-                    powershell Compress-Archive -Path target\\server.jar,Procfile -DestinationPath deploy.zip
+
+                    copy target\\*.jar server.jar
+
+                    powershell Compress-Archive -Path server.jar,Procfile -DestinationPath deploy.zip
                     '''
                 }
             }
         }
+
 
         stage('Deploy to AWS') {
             steps {
