@@ -21,10 +21,21 @@ pipeline {
                 dir('server') {
                     bat '''
                     if exist deploy.zip del deploy.zip
+                    if exist server.jar del server.jar
 
-                    copy target\\*.jar server.jar
+                    REM Copy ONLY correct jar
+                    copy target\\server.jar server.jar
 
-                    powershell Compress-Archive -Path server.jar,Procfile -DestinationPath deploy.zip
+                    REM Verify jar size (important)
+                    echo ===== JAR SIZE =====
+                    dir server.jar
+
+                    REM Create zip
+                    powershell Compress-Archive -Path server.jar,Procfile -DestinationPath deploy.zip -Force
+
+                    REM Verify zip
+                    echo ===== ZIP SIZE =====
+                    dir deploy.zip
                     '''
                 }
             }
