@@ -48,6 +48,7 @@ pipeline {
                             --version-label ${version} ^
                             --region ap-south-1 ^
                             --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=DUMMY,Value=1
+                            """
                         }
                     }
                 }
