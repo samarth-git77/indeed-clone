@@ -27,24 +27,28 @@ pipeline {
             }
         }
 
-       stage('Deploy to AWS') {
+        stage('Deploy to AWS') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
                     dir('server') {
-                        bat '''
-                        aws s3 cp deploy.zip s3://indeed-backend-bucket/deploy.zip --region ap-south-1
+                        script {
+                            def version = "v-${env.BUILD_NUMBER}"
 
-                        aws elasticbeanstalk create-application-version ^
-                        --application-name indeed-backend ^
-                        --version-label v2 ^
-                        --source-bundle S3Bucket="indeed-backend-bucket",S3Key="deploy.zip" ^
-                        --region ap-south-1
+                            bat """
+                            aws s3 cp deploy.zip s3://indeed-backend-bucket/deploy.zip --region ap-south-1
 
-                        aws elasticbeanstalk update-environment ^
-                        --environment-name indeed-env ^
-                        --version-label v2 ^
-                        --region ap-south-1
-                        '''
+                            aws elasticbeanstalk create-application-version ^
+                            --application-name indeed-backend ^
+                            --version-label ${version} ^
+                            --source-bundle S3Bucket="indeed-backend-bucket",S3Key="deploy.zip" ^
+                            --region ap-south-1
+
+                            aws elasticbeanstalk update-environment ^
+                            --environment-name indeed-env ^
+                            --version-label ${version} ^
+                            --region ap-south-1
+                            """
+                        }
                     }
                 }
             }
