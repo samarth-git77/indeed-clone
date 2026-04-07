@@ -46,8 +46,8 @@ pipeline {
                             aws elasticbeanstalk update-environment ^
                             --environment-name indeed-env ^
                             --version-label ${version} ^
-                            --region ap-south-1
-                            """
+                            --region ap-south-1 ^
+                            --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=DUMMY,Value=1
                         }
                     }
                 }
